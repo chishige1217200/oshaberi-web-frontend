@@ -7,8 +7,10 @@ interface Message {
 }
 
 export default function Chat() {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [chats, setChats] = useState<{ id: number; title: string; messages: Message[] }[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [chats, setChats] = useState<
+    { id: number; title: string; messages: Message[] }[]
+  >([]);
   const [currentChatId, setCurrentChatId] = useState<number | null>(null);
   const [input, setInput] = useState("");
 
@@ -74,7 +76,9 @@ export default function Chat() {
                   key={chat.id}
                   onClick={() => setCurrentChatId(chat.id)}
                   className={`p-2 cursor-pointer ${
-                    chat.id === currentChatId ? "bg-gray-600" : "hover:bg-gray-700"
+                    chat.id === currentChatId
+                      ? "bg-gray-600"
+                      : "hover:bg-gray-700"
                   }`}
                 >
                   {chat.title}
@@ -123,26 +127,37 @@ export default function Chat() {
               </div>
             ))
           ) : (
-            <div className="text-gray-500">左の「新しいチャット」から始めてください。</div>
+            <div className="text-gray-500">
+              左の「新しいチャット」から始めてください。
+            </div>
           )}
         </div>
 
         {/* 入力欄 */}
         {currentChat && (
           <div className="p-4 border-t flex space-x-2">
-            <input
+            <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              className="flex-1 border rounded-md p-2"
-              placeholder="メッセージを入力..."
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault(); // 改行を無効化
+                  handleSend(); // 送信
+                }
+                // Shift+Enter の場合は何もしない → textarea の改行が働く
+              }}
+              className="flex-1 border rounded-md p-2 resize-none"
+              placeholder="メッセージを入力...(Shift+Enterで改行)"
+              rows={2}
             />
-            <button
-              onClick={handleSend}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
-            >
-              送信
-            </button>
+            <div className="items-center flex">
+                <button
+                onClick={handleSend}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
+                >
+                送信
+                </button>
+            </div>
           </div>
         )}
       </div>
