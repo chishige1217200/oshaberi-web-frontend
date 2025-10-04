@@ -1,12 +1,11 @@
 // App.tsx
 import React, { useState } from "react";
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
+type MainProps = {
+  paramSessionId?: number | null;
+};
 
-export default function Chat() {
+export default function Main({ paramSessionId }: MainProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [chats, setChats] = useState<
     { id: number; title: string; messages: Message[] }[]
@@ -46,6 +45,8 @@ export default function Chat() {
   };
 
   const currentChat = chats.find((c) => c.id === currentChatId);
+
+  console.log("paramSessionId:", paramSessionId);
 
   return (
     <div className="flex h-screen">
