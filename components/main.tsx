@@ -1,4 +1,5 @@
 // App.tsx
+import { Message } from "@/types/message";
 import React, { useState } from "react";
 
 type MainProps = {
