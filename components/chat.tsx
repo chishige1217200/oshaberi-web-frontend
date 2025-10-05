@@ -59,7 +59,7 @@ export default function Chat({ currentChatId }: ChatProps) {
                 <Image
                   src={`${apiUrl}/static/sample.png`}
                   alt="AI"
-                  className="w-8 h-8 rounded-full mr-2"
+                  className="w-10 h-10 rounded-full mr-2"
                   width={180}
                   height={38}
                   priority
@@ -79,7 +79,7 @@ export default function Chat({ currentChatId }: ChatProps) {
 
               {/* ユーザー側アイコン */}
               {msg.role === "user" && (
-                <div className="w-8 h-8 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
+                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
                   U
                 </div>
               )}
