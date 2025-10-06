@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { Message } from "@/types/message";
+import { Character } from "@/types/character";
 
 type ChatProps = {
   currentChatId: number | null;
@@ -9,7 +10,7 @@ type ChatProps = {
 
 export default function Chat({ currentChatId }: ChatProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
+  const [characters, setCharacters] = useState<Character[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
 
@@ -46,6 +47,28 @@ export default function Chat({ currentChatId }: ChatProps) {
     <>
       {/* メインチャット画面 */}
       <div className="flex-1 flex flex-col">
+        <div className="p-2 bg-gray-800 flex justify-center items-center">
+          <div className="flex items-center gap-2">
+            <Image
+              src={`${apiUrl}/static/sample.png`}
+              alt="AI"
+              className="w-10 h-10 rounded-full"
+              width={180}
+              height={38}
+              priority
+            />
+            <select
+              className="bg-gray-700 text-white p-1 rounded w-40 h-8"
+              disabled={currentChatId != null}
+            >
+              {characters.map((char) => (
+                <option key={char.id} value={char.id}>
+                  {char.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, i) => (
             <div
