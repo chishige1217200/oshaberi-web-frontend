@@ -19,7 +19,7 @@ export default function Chat({ currentChatId, characters, currentCharacter, setC
 
   const getCharacterIconPath = (character: Character | null) => {
     if (!character) return `${apiUrl}/static/sample.png`;
-    return character.icon_path ? `${apiUrl}/${character.icon_path}` : `${apiUrl}/static/sample.png`;
+    return character.icon_path ? `${apiUrl}/static/${character.icon_path}` : `${apiUrl}/static/sample.png`;
   }
 
   // メッセージ送信

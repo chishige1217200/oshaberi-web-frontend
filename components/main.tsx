@@ -50,6 +50,10 @@ export default function Main({ paramSessionId }: MainProps) {
       data = data.filter((char) => char.language_id === 'ja-JP');
 
       setCharacters(data);
+      if (data.length > 0) {
+        setCurrentCharacter(data[0]);
+      }
+
     } catch (error) {
       console.error("Error fetching characters:", error);
       toast.error("キャラクタ一覧の取得に失敗しました。");
