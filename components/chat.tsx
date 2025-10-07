@@ -6,13 +6,21 @@ import { Character } from "@/types/character";
 type ChatProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  characters: Character[];
+  currentCharacter: Character | null;
+  setCurrentCharacter: React.Dispatch<React.SetStateAction<Character | null>>;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 };
 
-export default function Chat({ currentChatId }: ChatProps) {
+export default function Chat({ currentChatId, characters, currentCharacter, setCurrentCharacter, messages, setMessages }: ChatProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
+
+  const getCharacterIconPath = (character: Character | null) => {
+    if (!character) return `${apiUrl}/static/sample.png`;
+    return character.icon_path ? `${apiUrl}/${character.icon_path}` : `${apiUrl}/static/sample.png`;
+  }
 
   // メッセージ送信
   const handleSend = () => {
@@ -50,7 +58,7 @@ export default function Chat({ currentChatId }: ChatProps) {
         <div className="p-2 bg-gray-800 flex justify-center items-center">
           <div className="flex items-center gap-2">
             <Image
-              src={`${apiUrl}/static/sample.png`}
+              src={getCharacterIconPath(currentCharacter)}
               alt="AI"
               className="w-10 h-10 rounded-full"
               width={180}
@@ -60,6 +68,13 @@ export default function Chat({ currentChatId }: ChatProps) {
             <select
               className="bg-gray-700 text-white p-1 rounded w-40 h-8"
               disabled={currentChatId != null}
+              value={currentCharacter ? currentCharacter.id : ""}
+              onChange={(e) => {
+                const selectedCharacter = characters.find(
+                  (char) => char.id === Number(e.target.value)
+                );
+                setCurrentCharacter(selectedCharacter || null);
+              }}
             >
               {characters.map((char) => (
                 <option key={char.id} value={char.id}>
@@ -80,7 +95,7 @@ export default function Chat({ currentChatId }: ChatProps) {
               {/* AI側アイコン */}
               {msg.role === "assistant" && (
                 <Image
-                  src={`${apiUrl}/static/sample.png`}
+                  src={getCharacterIconPath(currentCharacter)}
                   alt="AI"
                   className="w-10 h-10 rounded-full mr-2"
                   width={180}

@@ -1,30 +1,23 @@
 import { Chat } from "@/types/chat";
+import Link from "next/link";
 import React, { useState } from "react";
 
 type SidebarProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  chats: Chat[];
 };
 
 export default function Sidebar({
   currentChatId,
   setCurrentChatId,
+  chats,
 }: SidebarProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [chats, setChats] = useState<Chat[]>([]);
-
   // 新しいチャットを開始
   const handleNewChat = () => {
-    const newId = Date.now();
-    const newChat = {
-      id: newId,
-      character_id: 1,
-      subject: null,
-      upd_datetime: new Date().toISOString(),
-    };
-    setChats((prev) => [newChat, ...prev]);
-    setCurrentChatId(newId);
+    setCurrentChatId(null);
   };
 
   return (
@@ -62,6 +55,7 @@ export default function Sidebar({
                   }`}
                 >
                   {chat.subject || "無題のチャット"}
+                  <Link href={`/c/${chat.id}`} >詳細</Link>
                 </div>
               ))}
             </div>
