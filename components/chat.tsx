@@ -2,6 +2,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { Message } from "@/types/message";
 import { Character } from "@/types/character";
+import { PulseLoader } from "react-spinners";
 
 type ChatProps = {
   currentChatId: number | null;
@@ -13,21 +14,32 @@ type ChatProps = {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 };
 
-export default function Chat({ currentChatId, characters, currentCharacter, setCurrentCharacter, messages, setMessages }: ChatProps) {
+export default function Chat({
+  currentChatId,
+  characters,
+  currentCharacter,
+  setCurrentCharacter,
+  messages,
+  setMessages,
+}: ChatProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const [messageLoading, setMessageLoading] = useState(false);
   const [input, setInput] = useState("");
 
   const getCharacterIconPath = (character: Character | null) => {
     if (!character) return `${apiUrl}/static/sample.png`;
-    return character.icon_path ? `${apiUrl}/static/${character.icon_path}` : `${apiUrl}/static/sample.png`;
-  }
+    return character.icon_path
+      ? `${apiUrl}/static/${character.icon_path}`
+      : `${apiUrl}/static/sample.png`;
+  };
 
   // メッセージ送信
   const handleSend = () => {
-    if (!input.trim() || currentChatId === null) return;
+    if (!input.trim()) return;
 
+    // TODO: ここでAPIに送信する処理を追加
     const newMessage: Message = {
-      chat_id: currentChatId,
+      chat_id: currentChatId ?? 0,
       id: Date.now(),
       language_id: "ja-JP",
       role: "user",
@@ -37,7 +49,7 @@ export default function Chat({ currentChatId, characters, currentCharacter, setC
     };
 
     const aiMessage: Message = {
-      chat_id: currentChatId,
+      chat_id: currentChatId ?? 0,
       id: Date.now() + 1,
       language_id: "ja-JP",
       role: "assistant",
@@ -104,16 +116,20 @@ export default function Chat({ currentChatId, characters, currentCharacter, setC
                 />
               )}
 
-              {/* 吹き出し */}
-              <div
-                className={`p-2 rounded-lg max-w-xs text-black ${
-                  msg.role === "user"
-                    ? "bg-blue-200 text-right"
-                    : "bg-green-200 text-left"
-                }`}
-              >
-                {msg.content}
-              </div>
+              {/* 読込中アニメーション */}
+              {msg.content ? (
+                <div
+                  className={`p-2 rounded-lg max-w-xs text-black ${
+                    msg.role === "user"
+                      ? "bg-blue-200 text-right"
+                      : "bg-green-200 text-left"
+                  }`}
+                >
+                  {msg.content}
+                </div>
+              ) : (
+                <PulseLoader loading={true} color="#36d7b7" size={10} />
+              )}
 
               {/* ユーザー側アイコン */}
               {msg.role === "user" && (
@@ -144,7 +160,8 @@ export default function Chat({ currentChatId, characters, currentCharacter, setC
           <div className="items-center flex">
             <button
               onClick={handleSend}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 disabled:opacity-50"
+              disabled={!input.trim() || messageLoading}
             >
               送信
             </button>

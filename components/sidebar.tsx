@@ -55,7 +55,7 @@ export default function Sidebar({
                   }`}
                 >
                   {chat.subject || "無題のチャット"}
-                  <Link href={`/c/${chat.id}`} >詳細</Link>
+                  <Link href={`/c/${chat.id}`}>詳細</Link>
                 </div>
               ))}
             </div>
