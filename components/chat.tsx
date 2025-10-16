@@ -78,7 +78,7 @@ export default function Chat({
               priority
             />
             <select
-              className="bg-gray-700 text-white p-1 rounded w-40 h-8"
+              className="bg-gray-700 text-white p-1 rounded w-40 h-8 disabled:opacity-50"
               disabled={currentChatId != null}
               value={currentCharacter ? currentCharacter.id : ""}
               onChange={(e) => {
