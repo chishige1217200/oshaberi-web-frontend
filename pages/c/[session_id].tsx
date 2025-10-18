@@ -6,7 +6,7 @@ const Index = () => {
   // パスパラメータから値を取得
   const { session_id } = router.query;
   return (
-    <Main paramSessionId={session_id ? Number(session_id) : null} />
+    <Main paramSessionId={session_id != null ? Number(session_id) : null} />
   );
 };
 

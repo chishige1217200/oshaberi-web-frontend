@@ -4,12 +4,12 @@ import Sidebar from "./sidebar";
 import { useEffect, useState } from "react";
 import { Character } from "@/types/character";
 import { Chat } from "@/types/chat";
-import ChatComponent from "./chat";
+import ChatComponent from "./ChatComponent";
 import { Message } from "@/types/message";
 import { MoonLoader } from "react-spinners";
 
 type MainProps = {
-  paramSessionId?: number | null;
+  paramSessionId: number | null;
 };
 
 export default function Main({ paramSessionId }: MainProps) {
@@ -75,8 +75,8 @@ export default function Main({ paramSessionId }: MainProps) {
 
   /**
    * 会話履歴を取得
-   * @param chatId 
-   * @returns 
+   * @param chatId
+   * @returns
    */
   const getMessages = async (chatId: number | null) => {
     // chatIdがnullの場合は空配列をセットして終了
@@ -105,7 +105,7 @@ export default function Main({ paramSessionId }: MainProps) {
   }, []);
 
   useEffect(() => {
-    if (paramSessionId) {
+    if (paramSessionId != null) {
       setCurrentChatId(paramSessionId ? Number(paramSessionId) : null);
       toast.info(`Session ID: ${paramSessionId}`);
     }
@@ -123,7 +123,7 @@ export default function Main({ paramSessionId }: MainProps) {
       {loading ? (
         <div className="flex absolute w-full h-full items-center justify-center bg-black/50 z10">
           <MoonLoader
-            loading={loading}
+            loading={true}
             color="#36d7b7"
             size={150}
             speedMultiplier={0.8}

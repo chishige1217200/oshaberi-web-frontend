@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Message } from "@/types/message";
 import { Character } from "@/types/character";
 import { PulseLoader } from "react-spinners";
+import { Chat } from "@/types/chat";
+import { toast } from "react-toastify";
 
 type ChatProps = {
   currentChatId: number | null;
@@ -14,8 +16,9 @@ type ChatProps = {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 };
 
-export default function Chat({
+export default function ChatComponent({
   currentChatId,
+  setCurrentChatId,
   characters,
   currentCharacter,
   setCurrentCharacter,
@@ -34,8 +37,43 @@ export default function Chat({
   };
 
   // メッセージ送信
-  const handleSend = () => {
-    if (!input.trim()) return;
+  const handleSend = async () => {
+    if (!input.trim() || !currentCharacter) return;
+
+    // try {
+    //   setMessageLoading(true);
+
+    //   let chatId = currentChatId;
+
+    //   // チャットが存在しない場合に作成する
+    //   if (chatId === null) {
+    //     const response = await fetch(`${apiUrl}/create-chat`, {
+    //       method: "POST",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //       },
+    //       body: JSON.stringify({
+    //         character_id: currentCharacter ? currentCharacter.id : null,
+    //       }),
+    //     });
+
+    //     if (!response.ok) {
+    //       throw new Error("チャットの作成に失敗しました。");
+    //     }
+
+    //     const data: Chat = await response.json();
+    //     chatId = data.id;
+    //     setCurrentChatId(chatId);
+    //   }
+
+    //   // メッセージを送信する
+
+    // } catch (error) {
+    //   console.error("Error sending message:", error);
+    //   toast.error("メッセージの送信に失敗しました。");
+    // } finally {
+    //   setMessageLoading(false);
+    // }
 
     // TODO: ここでAPIに送信する処理を追加
     const newMessage: Message = {
