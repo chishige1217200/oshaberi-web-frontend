@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { useState } from "react";
+import React, { useState } from "react";
+import { PulseLoader } from "react-spinners";
+import { toast } from "react-toastify";
 import { Message } from "@/types/message";
 import { Character } from "@/types/character";
-import { PulseLoader } from "react-spinners";
 import { Chat } from "@/types/chat";
-import { toast } from "react-toastify";
 
 type ChatComponentProps = {
   currentChatId: number | null;
@@ -126,55 +126,57 @@ export default function ChatComponent({
               }}
             >
               {characters.map((char) => (
-                <option key={char.id} value={char.id}>
-                  {char.name}
-                </option>
+                <React.Fragment key={char.id}>
+                  <option value={char.id}>{char.name}</option>
+                </React.Fragment>
               ))}
             </select>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex items-end ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {/* AI側アイコン */}
-              {msg.role === "assistant" && (
-                <Image
-                  src={getCharacterIconPath(currentCharacter)}
-                  alt="AI"
-                  className="w-10 h-10 rounded-full mr-2"
-                  width={180}
-                  height={38}
-                  priority
-                />
-              )}
+            <React.Fragment key={i}>
+              <div
+                key={i}
+                className={`flex items-end ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                {/* AI側アイコン */}
+                {msg.role === "assistant" && (
+                  <Image
+                    src={getCharacterIconPath(currentCharacter)}
+                    alt="AI"
+                    className="w-10 h-10 rounded-full mr-2"
+                    width={180}
+                    height={38}
+                    priority
+                  />
+                )}
 
-              {/* 読込中アニメーション */}
-              {msg.content ? (
-                <div
-                  className={`p-2 rounded-lg max-w-xs text-black ${
-                    msg.role === "user"
-                      ? "bg-blue-200 text-right"
-                      : "bg-green-200 text-left"
-                  }`}
-                >
-                  {msg.content}
-                </div>
-              ) : (
-                <PulseLoader loading={true} color="#36d7b7" size={10} />
-              )}
+                {/* 読込中アニメーション */}
+                {msg.content ? (
+                  <div
+                    className={`p-2 rounded-lg max-w-xs text-black ${
+                      msg.role === "user"
+                        ? "bg-blue-200 text-right"
+                        : "bg-green-200 text-left"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                ) : (
+                  <PulseLoader loading={true} color="#36d7b7" size={10} />
+                )}
 
-              {/* ユーザー側アイコン */}
-              {msg.role === "user" && (
-                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
-                  U
-                </div>
-              )}
-            </div>
+                {/* ユーザー側アイコン */}
+                {msg.role === "user" && (
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
+                    U
+                  </div>
+                )}
+              </div>
+            </React.Fragment>
           ))}
         </div>
 

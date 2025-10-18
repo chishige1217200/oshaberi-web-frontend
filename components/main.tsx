@@ -1,12 +1,11 @@
-// App.tsx
+import { useEffect, useState } from "react";
+import { MoonLoader } from "react-spinners";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import Sidebar from "./sidebar";
-import { useEffect, useState } from "react";
 import { Character } from "@/types/character";
 import { Chat } from "@/types/chat";
 import ChatComponent from "./ChatComponent";
 import { Message } from "@/types/message";
-import { MoonLoader } from "react-spinners";
 
 type MainProps = {
   paramChatId: number | null;
