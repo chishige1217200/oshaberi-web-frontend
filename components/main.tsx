@@ -9,10 +9,10 @@ import { Message } from "@/types/message";
 import { MoonLoader } from "react-spinners";
 
 type MainProps = {
-  paramSessionId: number | null;
+  paramChatId: number | null;
 };
 
-export default function Main({ paramSessionId }: MainProps) {
+export default function Main({ paramChatId }: MainProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // ローディングのステート（初期表示時のみ）
@@ -105,11 +105,11 @@ export default function Main({ paramSessionId }: MainProps) {
   }, []);
 
   useEffect(() => {
-    if (paramSessionId != null) {
-      setCurrentChatId(paramSessionId ? Number(paramSessionId) : null);
-      toast.info(`Session ID: ${paramSessionId}`);
+    if (paramChatId != null) {
+      setCurrentChatId(paramChatId ? Number(paramChatId) : null);
+      toast.info(`Session ID: ${paramChatId}`);
     }
-  }, [paramSessionId]);
+  }, [paramChatId]);
 
   useEffect(() => {
     toast.info(`Current Chat ID: ${currentChatId}`);

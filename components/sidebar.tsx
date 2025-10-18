@@ -38,24 +38,25 @@ export default function Sidebar({
             >
               ＋ 新しいチャット
             </button> */}
-            <div className="w-full p-2 bg-blue-600 hover:bg-blue-500 text-center">
-              <Link href={`/`}>＋ 新しいチャット</Link>
-            </div>
+            <Link href={`/`}>
+              <div className="w-full p-2 bg-blue-600 hover:bg-blue-500 text-center">
+                ＋ 新しいチャット
+              </div>
+            </Link>
             <div>
               {chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  onClick={() => setCurrentChatId(chat.id)}
-                  className={`p-2 cursor-pointer ${
-                    chat.id === currentChatId
-                      ? "bg-gray-600"
-                      : "hover:bg-gray-700"
-                  }`}
-                >
-                  <Link href={`/c/${chat.id}`}>
+                <Link key={chat.id} href={`/c/${chat.id}`}>
+                  <div
+                    // onClick={() => setCurrentChatId(chat.id)}
+                    className={`p-2 cursor-pointer ${
+                      chat.id === currentChatId
+                        ? "bg-gray-600"
+                        : "hover:bg-gray-700"
+                    }`}
+                  >
                     {chat.subject || "無題のチャット"}
-                  </Link>
-                </div>
+                  </div>
+                </Link>
               ))}
             </div>
           </div>

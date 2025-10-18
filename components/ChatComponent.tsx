@@ -6,7 +6,7 @@ import { PulseLoader } from "react-spinners";
 import { Chat } from "@/types/chat";
 import { toast } from "react-toastify";
 
-type ChatProps = {
+type ChatComponentProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
   characters: Character[];
@@ -24,7 +24,7 @@ export default function ChatComponent({
   setCurrentCharacter,
   messages,
   setMessages,
-}: ChatProps) {
+}: ChatComponentProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [messageLoading, setMessageLoading] = useState(false);
   const [input, setInput] = useState("");
@@ -40,63 +40,62 @@ export default function ChatComponent({
   const handleSend = async () => {
     if (!input.trim() || !currentCharacter) return;
 
-    // try {
-    //   setMessageLoading(true);
+    try {
+      setMessageLoading(true);
 
-    //   let chatId = currentChatId;
+      let chatId = currentChatId;
 
-    //   // チャットが存在しない場合に作成する
-    //   if (chatId === null) {
-    //     const response = await fetch(`${apiUrl}/create-chat`, {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         character_id: currentCharacter ? currentCharacter.id : null,
-    //       }),
-    //     });
+      // チャットが存在しない場合に作成する
+      if (chatId === null) {
+        const response = await fetch(`${apiUrl}/create-chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            character_id: currentCharacter ? currentCharacter.id : null,
+          }),
+        });
 
-    //     if (!response.ok) {
-    //       throw new Error("チャットの作成に失敗しました。");
-    //     }
+        if (!response.ok) {
+          throw new Error("チャットの作成に失敗しました。");
+        }
 
-    //     const data: Chat = await response.json();
-    //     chatId = data.id;
-    //     setCurrentChatId(chatId);
-    //   }
+        const data: Chat = await response.json();
+        chatId = data.id;
+        setCurrentChatId(chatId);
+      }
 
-    //   // メッセージを送信する
+      // チャット更新
+      const newMessage: Message = {
+        chat_id: chatId,
+        id: Date.now(),
+        language_id: "ja-JP",
+        role: "user",
+        content: input,
+        audio_path: null,
+        upd_datetime: "",
+      };
 
-    // } catch (error) {
-    //   console.error("Error sending message:", error);
-    //   toast.error("メッセージの送信に失敗しました。");
-    // } finally {
-    //   setMessageLoading(false);
-    // }
+      const aiMessage: Message = {
+        chat_id: chatId,
+        id: Date.now() + 1,
+        language_id: "ja-JP",
+        role: "assistant",
+        content: "AIレスポンス: " + input,
+        audio_path: null,
+        upd_datetime: "",
+      };
 
-    // TODO: ここでAPIに送信する処理を追加
-    const newMessage: Message = {
-      chat_id: currentChatId ?? 0,
-      id: Date.now(),
-      language_id: "ja-JP",
-      role: "user",
-      content: input,
-      audio_path: null,
-      upd_datetime: "",
-    };
+      setMessages((prev) => [...prev, newMessage, aiMessage]);
 
-    const aiMessage: Message = {
-      chat_id: currentChatId ?? 0,
-      id: Date.now() + 1,
-      language_id: "ja-JP",
-      role: "assistant",
-      content: "AIレスポンス: " + input,
-      audio_path: null,
-      upd_datetime: "",
-    };
-
-    setMessages((prev) => [...prev, newMessage, aiMessage]);
+      // メッセージ送信
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("メッセージの送信に失敗しました。");
+    } finally {
+      setMessageLoading(false);
+    }
 
     setInput("");
   };
