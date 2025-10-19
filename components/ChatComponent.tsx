@@ -9,6 +9,7 @@ import { Chat } from "@/types/chat";
 type ChatComponentProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  getChats: () => Promise<void>;
   characters: Character[];
   currentCharacter: Character | null;
   setCurrentCharacter: React.Dispatch<React.SetStateAction<Character | null>>;
@@ -19,6 +20,7 @@ type ChatComponentProps = {
 export default function ChatComponent({
   currentChatId,
   setCurrentChatId,
+  getChats,
   characters,
   currentCharacter,
   setCurrentCharacter,
@@ -66,30 +68,73 @@ export default function ChatComponent({
         setCurrentChatId(chatId);
       }
 
-      // チャット更新
+      const tempMessages = messages;
+
+      // 現在日時を取得
+      const nowTime = new Date();
+
+      // 年月日 時間・分・秒を取得
+      const year = nowTime.getFullYear();
+      const month = nowTime.getMonth() + 1;
+      const date = nowTime.getDate();
+      const hours = nowTime.getHours();
+      const minutes = nowTime.getMinutes();
+      const seconds = nowTime.getSeconds();
+      const formatDateTime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+
+      // ユーザメッセージを追加
       const newMessage: Message = {
         chat_id: chatId,
-        id: Date.now(),
+        id:
+          tempMessages.length > 0
+            ? tempMessages[tempMessages.length - 1].id + 1
+            : 1,
         language_id: "ja-JP",
         role: "user",
         content: input,
         audio_path: null,
-        upd_datetime: "",
+        upd_datetime: formatDateTime,
       };
+      tempMessages.push(newMessage);
 
+      // ローディングを表示するために空のAIメッセージを追加
       const aiMessage: Message = {
         chat_id: chatId,
-        id: Date.now() + 1,
+        id:
+          tempMessages.length > 0
+            ? tempMessages[tempMessages.length - 1].id + 1
+            : 1,
         language_id: "ja-JP",
         role: "assistant",
-        content: "AIレスポンス: " + input,
+        content: "",
         audio_path: null,
-        upd_datetime: "",
+        upd_datetime: formatDateTime,
       };
+      tempMessages.push(aiMessage);
+      setMessages(tempMessages);
 
-      setMessages((prev) => [...prev, newMessage, aiMessage]);
+      // APIにメッセージを送信
+      const response = await fetch(`${apiUrl}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          content: input,
+        }),
+      });
 
-      // メッセージ送信
+      if (!response.ok) {
+        throw new Error("チャットの送信に失敗しました。");
+      }
+
+      // AIメッセージを更新
+      const data: Message = await response.json();
+      tempMessages[tempMessages.length - 1].content = data.content;
+
+      // サイドバーのチャット一覧を更新
+      getChats();
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("メッセージの送信に失敗しました。");
@@ -138,7 +183,7 @@ export default function ChatComponent({
             <React.Fragment key={i}>
               <div
                 key={i}
-                className={`flex items-end ${
+                className={`flex items-start ${
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >

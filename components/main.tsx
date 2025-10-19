@@ -104,14 +104,16 @@ export default function Main({ paramChatId }: MainProps) {
   }, []);
 
   useEffect(() => {
+    // console.log("Param Chat ID changed:", paramChatId);
     if (paramChatId != null) {
+      // toast.info(`Param Chat ID: ${paramChatId}`);
       setCurrentChatId(paramChatId ? Number(paramChatId) : null);
-      toast.info(`Session ID: ${paramChatId}`);
     }
   }, [paramChatId]);
 
   useEffect(() => {
-    toast.info(`Current Chat ID: ${currentChatId}`);
+    // console.log("Current Chat ID changed:", currentChatId);
+    // toast.info(`Current Chat ID: ${currentChatId}`);
     getMessages(currentChatId);
   }, [currentChatId]);
 
@@ -153,6 +155,7 @@ export default function Main({ paramChatId }: MainProps) {
         <ChatComponent
           currentChatId={currentChatId}
           setCurrentChatId={setCurrentChatId}
+          getChats={getChats}
           characters={characters}
           currentCharacter={currentCharacter}
           setCurrentCharacter={setCurrentCharacter}
