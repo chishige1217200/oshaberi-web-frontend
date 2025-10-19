@@ -42,6 +42,9 @@ export default function ChatComponent({
   const handleSend = async () => {
     if (!input.trim() || !currentCharacter) return;
 
+    const userInput = input;
+    setInput("");
+
     try {
       setMessageLoading(true);
 
@@ -91,7 +94,7 @@ export default function ChatComponent({
             : 1,
         language_id: "ja-JP",
         role: "user",
-        content: input,
+        content: userInput,
         audio_path: null,
         upd_datetime: formatDateTime,
       };
@@ -121,7 +124,7 @@ export default function ChatComponent({
         },
         body: JSON.stringify({
           chat_id: chatId,
-          content: input,
+          content: userInput,
         }),
       });
 
@@ -141,8 +144,6 @@ export default function ChatComponent({
     } finally {
       setMessageLoading(false);
     }
-
-    setInput("");
   };
 
   return (
@@ -202,7 +203,7 @@ export default function ChatComponent({
                 {/* 読込中アニメーション */}
                 {msg.content ? (
                   <div
-                    className={`p-2 rounded-lg max-w-xs text-black ${
+                    className={`p-2 rounded-lg max-w-xs text-start text-black ${
                       msg.role === "user"
                         ? "bg-blue-200 text-right"
                         : "bg-green-200 text-left"
@@ -211,7 +212,9 @@ export default function ChatComponent({
                     {msg.content}
                   </div>
                 ) : (
-                  <PulseLoader loading={true} color="#36d7b7" size={10} />
+                  <div className="mt-4">
+                    <PulseLoader loading={true} color="#36d7b7" size={10} />
+                  </div>
                 )}
 
                 {/* ユーザー側アイコン */}
