@@ -1,14 +1,15 @@
 import Image from "next/image";
-import { useState } from "react";
+import React, { useState } from "react";
+import { PulseLoader } from "react-spinners";
+import { toast } from "react-toastify";
 import { Message } from "@/types/message";
 import { Character } from "@/types/character";
-import { PulseLoader } from "react-spinners";
 import { Chat } from "@/types/chat";
-import { toast } from "react-toastify";
 
-type ChatProps = {
+type ChatComponentProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  getChats: () => Promise<void>;
   characters: Character[];
   currentCharacter: Character | null;
   setCurrentCharacter: React.Dispatch<React.SetStateAction<Character | null>>;
@@ -19,12 +20,13 @@ type ChatProps = {
 export default function ChatComponent({
   currentChatId,
   setCurrentChatId,
+  getChats,
   characters,
   currentCharacter,
   setCurrentCharacter,
   messages,
   setMessages,
-}: ChatProps) {
+}: ChatComponentProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [messageLoading, setMessageLoading] = useState(false);
   const [input, setInput] = useState("");
@@ -40,65 +42,108 @@ export default function ChatComponent({
   const handleSend = async () => {
     if (!input.trim() || !currentCharacter) return;
 
-    // try {
-    //   setMessageLoading(true);
-
-    //   let chatId = currentChatId;
-
-    //   // チャットが存在しない場合に作成する
-    //   if (chatId === null) {
-    //     const response = await fetch(`${apiUrl}/create-chat`, {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         character_id: currentCharacter ? currentCharacter.id : null,
-    //       }),
-    //     });
-
-    //     if (!response.ok) {
-    //       throw new Error("チャットの作成に失敗しました。");
-    //     }
-
-    //     const data: Chat = await response.json();
-    //     chatId = data.id;
-    //     setCurrentChatId(chatId);
-    //   }
-
-    //   // メッセージを送信する
-
-    // } catch (error) {
-    //   console.error("Error sending message:", error);
-    //   toast.error("メッセージの送信に失敗しました。");
-    // } finally {
-    //   setMessageLoading(false);
-    // }
-
-    // TODO: ここでAPIに送信する処理を追加
-    const newMessage: Message = {
-      chat_id: currentChatId ?? 0,
-      id: Date.now(),
-      language_id: "ja-JP",
-      role: "user",
-      content: input,
-      audio_path: null,
-      upd_datetime: "",
-    };
-
-    const aiMessage: Message = {
-      chat_id: currentChatId ?? 0,
-      id: Date.now() + 1,
-      language_id: "ja-JP",
-      role: "assistant",
-      content: "AIレスポンス: " + input,
-      audio_path: null,
-      upd_datetime: "",
-    };
-
-    setMessages((prev) => [...prev, newMessage, aiMessage]);
-
+    const userInput = input;
     setInput("");
+
+    try {
+      setMessageLoading(true);
+
+      let chatId = currentChatId;
+
+      // チャットが存在しない場合に作成する
+      if (chatId === null) {
+        const response = await fetch(`${apiUrl}/create-chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            character_id: currentCharacter ? currentCharacter.id : null,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("チャットの作成に失敗しました。");
+        }
+
+        const data: Chat = await response.json();
+        chatId = data.id;
+        setCurrentChatId(chatId);
+      }
+
+      const tempMessages = messages;
+
+      // 現在日時を取得
+      const nowTime = new Date();
+
+      // 年月日 時間・分・秒を取得
+      const year = nowTime.getFullYear();
+      const month = nowTime.getMonth() + 1;
+      const date = nowTime.getDate();
+      const hours = nowTime.getHours();
+      const minutes = nowTime.getMinutes();
+      const seconds = nowTime.getSeconds();
+      const formatDateTime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+
+      // ユーザメッセージを追加
+      const newMessage: Message = {
+        chat_id: chatId,
+        id:
+          tempMessages.length > 0
+            ? tempMessages[tempMessages.length - 1].id + 1
+            : 1,
+        language_id: "ja-JP",
+        role: "user",
+        content: userInput,
+        audio_path: null,
+        upd_datetime: formatDateTime,
+      };
+      tempMessages.push(newMessage);
+
+      // ローディングを表示するために空のAIメッセージを追加
+      const aiMessage: Message = {
+        chat_id: chatId,
+        id:
+          tempMessages.length > 0
+            ? tempMessages[tempMessages.length - 1].id + 1
+            : 1,
+        language_id: "ja-JP",
+        role: "assistant",
+        content: "",
+        audio_path: null,
+        upd_datetime: formatDateTime,
+      };
+      tempMessages.push(aiMessage);
+      setMessages(tempMessages);
+
+      // APIにメッセージを送信
+      const response = await fetch(`${apiUrl}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          content: userInput,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("チャットの送信に失敗しました。");
+      }
+
+      // AIメッセージを更新
+      const data: Message = await response.json();
+      tempMessages[tempMessages.length - 1].content = data.content;
+
+      // サイドバーのチャット一覧を更新
+      getChats();
+    } catch (error) {
+      console.error("Error sending message:", error);
+      toast.error("メッセージの送信に失敗しました。");
+    } finally {
+      setMessageLoading(false);
+    }
   };
 
   return (
@@ -127,55 +172,59 @@ export default function ChatComponent({
               }}
             >
               {characters.map((char) => (
-                <option key={char.id} value={char.id}>
-                  {char.name}
-                </option>
+                <React.Fragment key={char.id}>
+                  <option value={char.id}>{char.name}</option>
+                </React.Fragment>
               ))}
             </select>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex items-end ${
-                msg.role === "user" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {/* AI側アイコン */}
-              {msg.role === "assistant" && (
-                <Image
-                  src={getCharacterIconPath(currentCharacter)}
-                  alt="AI"
-                  className="w-10 h-10 rounded-full mr-2"
-                  width={180}
-                  height={38}
-                  priority
-                />
-              )}
+            <React.Fragment key={i}>
+              <div
+                key={i}
+                className={`flex items-start ${
+                  msg.role === "user" ? "justify-end" : "justify-start"
+                }`}
+              >
+                {/* AI側アイコン */}
+                {msg.role === "assistant" && (
+                  <Image
+                    src={getCharacterIconPath(currentCharacter)}
+                    alt="AI"
+                    className="w-10 h-10 rounded-full mr-2"
+                    width={180}
+                    height={38}
+                    priority
+                  />
+                )}
 
-              {/* 読込中アニメーション */}
-              {msg.content ? (
-                <div
-                  className={`p-2 rounded-lg max-w-xs text-black ${
-                    msg.role === "user"
-                      ? "bg-blue-200 text-right"
-                      : "bg-green-200 text-left"
-                  }`}
-                >
-                  {msg.content}
-                </div>
-              ) : (
-                <PulseLoader loading={true} color="#36d7b7" size={10} />
-              )}
+                {/* 読込中アニメーション */}
+                {msg.content ? (
+                  <div
+                    className={`p-2 rounded-lg max-w-xs text-start text-black ${
+                      msg.role === "user"
+                        ? "bg-blue-200 text-right"
+                        : "bg-green-200 text-left"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                ) : (
+                  <div className="mt-4">
+                    <PulseLoader loading={true} color="#36d7b7" size={10} />
+                  </div>
+                )}
 
-              {/* ユーザー側アイコン */}
-              {msg.role === "user" && (
-                <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
-                  U
-                </div>
-              )}
-            </div>
+                {/* ユーザー側アイコン */}
+                {msg.role === "user" && (
+                  <div className="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white ml-2">
+                    U
+                  </div>
+                )}
+              </div>
+            </React.Fragment>
           ))}
         </div>
 

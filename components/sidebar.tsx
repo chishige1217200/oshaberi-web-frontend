@@ -1,6 +1,6 @@
-import { Chat } from "@/types/chat";
 import Link from "next/link";
 import React, { useState } from "react";
+import { Chat } from "@/types/chat";
 
 type SidebarProps = {
   currentChatId: number | null;
@@ -38,24 +38,27 @@ export default function Sidebar({
             >
               ＋ 新しいチャット
             </button> */}
-            <div className="w-full p-2 bg-blue-600 hover:bg-blue-500 text-center">
-              <Link href={`/`}>＋ 新しいチャット</Link>
-            </div>
+            <Link href={`/`}>
+              <div className="w-full p-2 bg-blue-600 hover:bg-blue-500 text-center">
+                ＋ 新しいチャット
+              </div>
+            </Link>
             <div>
               {chats.map((chat) => (
-                <div
-                  key={chat.id}
-                  onClick={() => setCurrentChatId(chat.id)}
-                  className={`p-2 cursor-pointer ${
-                    chat.id === currentChatId
-                      ? "bg-gray-600"
-                      : "hover:bg-gray-700"
-                  }`}
-                >
+                <React.Fragment key={chat.id}>
                   <Link href={`/c/${chat.id}`}>
-                    {chat.subject || "無題のチャット"}
+                    <div
+                      // onClick={() => setCurrentChatId(chat.id)}
+                      className={`p-2 cursor-pointer ${
+                        chat.id === currentChatId
+                          ? "bg-gray-600"
+                          : "hover:bg-gray-700"
+                      }`}
+                    >
+                      {chat.subject || "無題のチャット"}
+                    </div>
                   </Link>
-                </div>
+                </React.Fragment>
               ))}
             </div>
           </div>

@@ -1,18 +1,17 @@
-// App.tsx
+import { useEffect, useState } from "react";
+import { MoonLoader } from "react-spinners";
 import { Slide, toast, ToastContainer } from "react-toastify";
 import Sidebar from "./sidebar";
-import { useEffect, useState } from "react";
 import { Character } from "@/types/character";
 import { Chat } from "@/types/chat";
 import ChatComponent from "./ChatComponent";
 import { Message } from "@/types/message";
-import { MoonLoader } from "react-spinners";
 
 type MainProps = {
-  paramSessionId: number | null;
+  paramChatId: number | null;
 };
 
-export default function Main({ paramSessionId }: MainProps) {
+export default function Main({ paramChatId }: MainProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // ローディングのステート（初期表示時のみ）
@@ -105,14 +104,16 @@ export default function Main({ paramSessionId }: MainProps) {
   }, []);
 
   useEffect(() => {
-    if (paramSessionId != null) {
-      setCurrentChatId(paramSessionId ? Number(paramSessionId) : null);
-      toast.info(`Session ID: ${paramSessionId}`);
+    // console.log("Param Chat ID changed:", paramChatId);
+    if (paramChatId != null) {
+      // toast.info(`Param Chat ID: ${paramChatId}`);
+      setCurrentChatId(paramChatId ? Number(paramChatId) : null);
     }
-  }, [paramSessionId]);
+  }, [paramChatId]);
 
   useEffect(() => {
-    toast.info(`Current Chat ID: ${currentChatId}`);
+    // console.log("Current Chat ID changed:", currentChatId);
+    // toast.info(`Current Chat ID: ${currentChatId}`);
     getMessages(currentChatId);
   }, [currentChatId]);
 
@@ -154,6 +155,7 @@ export default function Main({ paramSessionId }: MainProps) {
         <ChatComponent
           currentChatId={currentChatId}
           setCurrentChatId={setCurrentChatId}
+          getChats={getChats}
           characters={characters}
           currentCharacter={currentCharacter}
           setCurrentCharacter={setCurrentCharacter}
