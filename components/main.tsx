@@ -15,6 +15,7 @@ export default function Main({ paramChatId }: MainProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // ローディングのステート（初期表示時のみ）
+  const [initLoading, setInitLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
   const [characterLoading, setCharacterLoading] = useState(true);
   const [messageLoading, setMessageLoading] = useState(true);
@@ -119,9 +120,14 @@ export default function Main({ paramChatId }: MainProps) {
 
   const loading = chatLoading || characterLoading || messageLoading;
 
+  // 初回以外のローディングでスピナーを出したくないため追加
+  if (initLoading && !loading) {
+    setInitLoading(false);
+  }
+
   return (
     <>
-      {loading ? (
+      {initLoading && loading ? (
         <div className="flex absolute w-full h-full items-center justify-center bg-black/50 z10">
           <MoonLoader
             loading={true}
