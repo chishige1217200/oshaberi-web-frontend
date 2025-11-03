@@ -254,7 +254,10 @@ export default function ChatComponent({
 
                 {msg.audio_path ? (
                   <audio controls>
-                    <source src={`${apiUrl}/static/${msg.audio_path}`} type="audio/mpeg" />
+                    <source
+                      src={`${apiUrl}/static/${msg.audio_path}`}
+                      type="audio/wav"
+                    />
                     Your browser does not support the audio element.
                   </audio>
                 ) : (
