@@ -171,7 +171,7 @@ export default function ChatComponent({
       // AIメッセージを更新
       const data: Message = await response.json();
       console.log(data);
-      const newMessages = messages.map(msg =>
+      const newMessages = messages.map((msg) =>
         msg.id === data.id ? data : msg
       );
       setMessages(newMessages);
@@ -250,6 +250,15 @@ export default function ChatComponent({
                   <div className="mt-4">
                     <PulseLoader loading={true} color="#36d7b7" size={10} />
                   </div>
+                )}
+
+                {msg.audio_path ? (
+                  <audio controls>
+                    <source src={`${apiUrl}/static/${msg.audio_path}`} type="audio/mpeg" />
+                    Your browser does not support the audio element.
+                  </audio>
+                ) : (
+                  <></>
                 )}
 
                 {/* ユーザー側アイコン */}
