@@ -135,14 +135,49 @@ export default function ChatComponent({
       // AIメッセージを更新
       const data: Message = await response.json();
       tempMessages[tempMessages.length - 1].content = data.content;
+      setMessages(tempMessages);
 
       // サイドバーのチャット一覧を更新
       getChats();
+
+      // 音声の生成を非同期で実行
+      generateAudio(chatId, tempMessages[tempMessages.length - 1].id);
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("メッセージの送信に失敗しました。");
     } finally {
       setMessageLoading(false);
+    }
+  };
+
+  // 音声生成
+  const generateAudio = async (chatId: number, id: number) => {
+    try {
+      const response = await fetch(`${apiUrl}/tts`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          id: id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("音声の生成に失敗しました。");
+      }
+
+      // AIメッセージを更新
+      const data: Message = await response.json();
+      console.log(data);
+      const newMessages = messages.map((msg) =>
+        msg.id === data.id ? data : msg
+      );
+      setMessages(newMessages);
+    } catch (error) {
+      console.error("Error generating audio:", error);
+      toast.error("音声の生成に失敗しました。");
     }
   };
 
@@ -215,6 +250,18 @@ export default function ChatComponent({
                   <div className="mt-4">
                     <PulseLoader loading={true} color="#36d7b7" size={10} />
                   </div>
+                )}
+
+                {msg.audio_path ? (
+                  <audio controls>
+                    <source
+                      src={`${apiUrl}/static/${msg.audio_path}`}
+                      type="audio/wav"
+                    />
+                    Your browser does not support the audio element.
+                  </audio>
+                ) : (
+                  <></>
                 )}
 
                 {/* ユーザー側アイコン */}

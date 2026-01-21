@@ -15,6 +15,7 @@ export default function Main({ paramChatId }: MainProps) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   // ローディングのステート（初期表示時のみ）
+  const [initLoading, setInitLoading] = useState(true);
   const [chatLoading, setChatLoading] = useState(true);
   const [characterLoading, setCharacterLoading] = useState(true);
   const [messageLoading, setMessageLoading] = useState(true);
@@ -28,7 +29,7 @@ export default function Main({ paramChatId }: MainProps) {
   // チャット画面のステート
   const [characters, setCharacters] = useState<Character[]>([]);
   const [currentCharacter, setCurrentCharacter] = useState<Character | null>(
-    null
+    null,
   );
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -52,7 +53,7 @@ export default function Main({ paramChatId }: MainProps) {
   /**
    * キャラクタ一覧を取得
    */
-  const getCharacters = async () => {
+  const getCharacters = async (characterId: number | null) => {
     try {
       setCharacterLoading(true);
       const response = await fetch(`${apiUrl}/characters`);
@@ -62,7 +63,9 @@ export default function Main({ paramChatId }: MainProps) {
 
       setCharacters(data);
       if (data.length > 0) {
-        setCurrentCharacter(data[0]);
+        setCurrentCharacter(
+          data.find((char) => char.id === characterId) || data[0],
+        );
       }
     } catch (error) {
       console.error("Error fetching characters:", error);
@@ -99,7 +102,7 @@ export default function Main({ paramChatId }: MainProps) {
   };
 
   useEffect(() => {
-    getCharacters();
+    getCharacters(null);
     getChats();
   }, []);
 
@@ -112,6 +115,13 @@ export default function Main({ paramChatId }: MainProps) {
   }, [paramChatId]);
 
   useEffect(() => {
+    if (currentChatId != null && chats != null && chats.length > 0) {
+      const chat = chats.find((c) => c.id === currentChatId);
+      getCharacters(chat ? chat.character_id : null);
+    }
+  }, [chats, currentChatId]);
+
+  useEffect(() => {
     // console.log("Current Chat ID changed:", currentChatId);
     // toast.info(`Current Chat ID: ${currentChatId}`);
     getMessages(currentChatId);
@@ -119,9 +129,14 @@ export default function Main({ paramChatId }: MainProps) {
 
   const loading = chatLoading || characterLoading || messageLoading;
 
+  // 初回以外のローディングでスピナーを出したくないため追加
+  if (initLoading && !loading) {
+    setInitLoading(false);
+  }
+
   return (
     <>
-      {loading ? (
+      {initLoading && loading ? (
         <div className="flex absolute w-full h-full items-center justify-center bg-black/50 z10">
           <MoonLoader
             loading={true}
