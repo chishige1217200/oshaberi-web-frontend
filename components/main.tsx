@@ -29,7 +29,7 @@ export default function Main({ paramChatId }: MainProps) {
   // チャット画面のステート
   const [characters, setCharacters] = useState<Character[]>([]);
   const [currentCharacter, setCurrentCharacter] = useState<Character | null>(
-    null
+    null,
   );
   const [messages, setMessages] = useState<Message[]>([]);
 
@@ -53,7 +53,7 @@ export default function Main({ paramChatId }: MainProps) {
   /**
    * キャラクタ一覧を取得
    */
-  const getCharacters = async () => {
+  const getCharacters = async (characterId: number | null) => {
     try {
       setCharacterLoading(true);
       const response = await fetch(`${apiUrl}/characters`);
@@ -63,7 +63,9 @@ export default function Main({ paramChatId }: MainProps) {
 
       setCharacters(data);
       if (data.length > 0) {
-        setCurrentCharacter(data[0]);
+        setCurrentCharacter(
+          data.find((char) => char.id === characterId) || data[0],
+        );
       }
     } catch (error) {
       console.error("Error fetching characters:", error);
@@ -100,7 +102,7 @@ export default function Main({ paramChatId }: MainProps) {
   };
 
   useEffect(() => {
-    getCharacters();
+    getCharacters(null);
     getChats();
   }, []);
 
@@ -111,6 +113,13 @@ export default function Main({ paramChatId }: MainProps) {
       setCurrentChatId(paramChatId ? Number(paramChatId) : null);
     }
   }, [paramChatId]);
+
+  useEffect(() => {
+    if (currentChatId != null && chats != null && chats.length > 0) {
+      const chat = chats.find((c) => c.id === currentChatId);
+      getCharacters(chat ? chat.character_id : null);
+    }
+  }, [chats, currentChatId]);
 
   useEffect(() => {
     // console.log("Current Chat ID changed:", currentChatId);
