@@ -5,6 +5,9 @@ import { toast } from "react-toastify";
 import { Message } from "@/types/message";
 import { Character } from "@/types/character";
 import { Chat } from "@/types/chat";
+import { Box, Slider, Stack, Typography } from "@mui/material";
+import { VolumeDown, VolumeUp } from "@mui/icons-material";
+import AudioComponent from "./AudioComponent";
 
 type ChatComponentProps = {
   currentChatId: number | null;
@@ -30,6 +33,11 @@ export default function ChatComponent({
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const [messageLoading, setMessageLoading] = useState(false);
   const [input, setInput] = useState("");
+
+  const [volume, setVolume] = React.useState<number>(50);
+  const handleVolumeChange = (event: Event, newValue: number) => {
+    setVolume(newValue);
+  };
 
   const getCharacterIconPath = (character: Character | null) => {
     if (!character) return `${apiUrl}/static/sample.png`;
@@ -172,7 +180,7 @@ export default function ChatComponent({
       const data: Message = await response.json();
       console.log(data);
       const newMessages = messages.map((msg) =>
-        msg.id === data.id ? data : msg
+        msg.id === data.id ? data : msg,
       );
       setMessages(newMessages);
     } catch (error) {
@@ -201,7 +209,7 @@ export default function ChatComponent({
               value={currentCharacter ? currentCharacter.id : ""}
               onChange={(e) => {
                 const selectedCharacter = characters.find(
-                  (char) => char.id === Number(e.target.value)
+                  (char) => char.id === Number(e.target.value),
                 );
                 setCurrentCharacter(selectedCharacter || null);
               }}
@@ -212,6 +220,20 @@ export default function ChatComponent({
                 </React.Fragment>
               ))}
             </select>
+            <Box sx={{ width: 250 }}>
+              <Stack spacing={2} direction="row" sx={{ alignItems: "center" }}>
+                <VolumeDown />
+                <Slider
+                  aria-label="Volume"
+                  value={volume}
+                  onChange={handleVolumeChange}
+                />
+                <VolumeUp />
+                <Typography sx={{ mt: 1, textAlign: "center" }}>
+                  {volume}
+                </Typography>
+              </Stack>
+            </Box>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -253,13 +275,12 @@ export default function ChatComponent({
                 )}
 
                 {msg.audio_path ? (
-                  <audio controls>
-                    <source
-                      src={`${apiUrl}/static/${msg.audio_path}`}
-                      type="audio/wav"
+                  <div className="p-2">
+                    <AudioComponent
+                      audioPath={msg.audio_path}
+                      volume={volume}
                     />
-                    Your browser does not support the audio element.
-                  </audio>
+                  </div>
                 ) : (
                   <></>
                 )}
