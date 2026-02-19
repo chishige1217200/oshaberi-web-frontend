@@ -190,37 +190,39 @@ export default function ChatComponent({
   };
 
   return (
-    <>
+    <div className="w-full h-screen flex">
       {/* メインチャット画面 */}
       <div className="flex-1 flex flex-col">
         <div className="p-2 bg-gray-800 flex justify-center items-center">
-          <div className="flex items-center gap-2">
-            <Image
-              src={getCharacterIconPath(currentCharacter)}
-              alt="AI"
-              className="w-10 h-10 rounded-full"
-              width={180}
-              height={38}
-              priority
-            />
-            <select
-              className="bg-gray-700 text-white p-1 rounded w-40 h-8 disabled:opacity-50"
-              disabled={currentChatId != null}
-              value={currentCharacter ? currentCharacter.id : ""}
-              onChange={(e) => {
-                const selectedCharacter = characters.find(
-                  (char) => char.id === Number(e.target.value),
-                );
-                setCurrentCharacter(selectedCharacter || null);
-              }}
-            >
-              {characters.map((char) => (
-                <React.Fragment key={char.id}>
-                  <option value={char.id}>{char.name}</option>
-                </React.Fragment>
-              ))}
-            </select>
-            <Box sx={{ width: 250 }}>
+          <div className="flex flex-col md:flex-row flex-1 justify-center items-center">
+            <div className="flex items-center gap-2">
+              <Image
+                src={getCharacterIconPath(currentCharacter)}
+                alt="AI"
+                className="w-10 h-10 rounded-full"
+                width={180}
+                height={38}
+                priority
+              />
+              <select
+                className="bg-gray-700 text-white p-1 rounded w-40 h-8 disabled:opacity-50"
+                disabled={currentChatId != null}
+                value={currentCharacter ? currentCharacter.id : ""}
+                onChange={(e) => {
+                  const selectedCharacter = characters.find(
+                    (char) => char.id === Number(e.target.value),
+                  );
+                  setCurrentCharacter(selectedCharacter || null);
+                }}
+              >
+                {characters.map((char) => (
+                  <React.Fragment key={char.id}>
+                    <option value={char.id}>{char.name}</option>
+                  </React.Fragment>
+                ))}
+              </select>
+            </div>
+            <Box sx={{ width: 250, ml: 4 }}>
               <Stack spacing={2} direction="row" sx={{ alignItems: "center" }}>
                 <VolumeDown />
                 <Slider
@@ -323,6 +325,6 @@ export default function ChatComponent({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

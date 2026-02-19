@@ -25,6 +25,7 @@ export default function Main({ paramChatId }: MainProps) {
 
   // サイドバーのステート
   const [chats, setChats] = useState<Chat[]>([]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   // チャット画面のステート
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -148,7 +149,7 @@ export default function Main({ paramChatId }: MainProps) {
       ) : (
         <></>
       )}
-      <div className="flex h-screen">
+      <div className="flex h-screen relative">
         <ToastContainer
           position="top-center"
           autoClose={5000}
@@ -162,21 +163,44 @@ export default function Main({ paramChatId }: MainProps) {
           theme="colored"
           transition={Slide}
         />
+
+        {/* 開くボタン（スマホ時のみ表示） */}
+        {!sidebarOpen && (
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="fixed top-1 left-1 z-50 p-2 bg-gray-800 text-white rounded-md md:hidden"
+          >
+            ☰
+          </button>
+        )}
+
+        {/* 背景オーバーレイ（スマホのみ） */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         <Sidebar
           currentChatId={currentChatId}
           setCurrentChatId={setCurrentChatId}
+          sidebarOpen={sidebarOpen}
+          setSidebarOpen={setSidebarOpen}
           chats={chats}
         />
-        <ChatComponent
-          currentChatId={currentChatId}
-          setCurrentChatId={setCurrentChatId}
-          getChats={getChats}
-          characters={characters}
-          currentCharacter={currentCharacter}
-          setCurrentCharacter={setCurrentCharacter}
-          messages={messages}
-          setMessages={setMessages}
-        />
+        <div className="flex-1 min-w-0">
+          <ChatComponent
+            currentChatId={currentChatId}
+            setCurrentChatId={setCurrentChatId}
+            getChats={getChats}
+            characters={characters}
+            currentCharacter={currentCharacter}
+            setCurrentCharacter={setCurrentCharacter}
+            messages={messages}
+            setMessages={setMessages}
+          />
+        </div>
       </div>
     </>
   );
