@@ -1,30 +1,40 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React from "react";
 import { Chat } from "@/types/chat";
 
 type SidebarProps = {
   currentChatId: number | null;
   setCurrentChatId: React.Dispatch<React.SetStateAction<number | null>>;
+  sidebarOpen: boolean;
+  setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>;
   chats: Chat[];
 };
 
 export default function Sidebar({
   currentChatId,
-  setCurrentChatId,
+  sidebarOpen,
+  setSidebarOpen,
   chats,
 }: SidebarProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-
   return (
     <>
       {/* サイドバー */}
       <div
-        className={`${
-          sidebarOpen ? "w-64" : "w-12"
-        } bg-gray-800 transition-all duration-300 flex flex-col`}
+        className={`
+          bg-gray-800 flex flex-col transition-all duration-300
+
+          /* PC表示 */
+          md:relative md:translate-x-0
+          ${sidebarOpen ? "md:w-64" : "md:w-12"}
+
+          /* スマホ表示 */
+          fixed top-0 left-0 h-full z-50
+          w-64
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        `}
       >
         <button
-          className="p-2 bg-gray-700 hover:bg-gray-600"
+          className="p-2 bg-gray-700 hover:bg-gray-600 md:block"
           onClick={() => setSidebarOpen(!sidebarOpen)}
         >
           {sidebarOpen ? "←" : "→"}
