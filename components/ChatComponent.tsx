@@ -8,6 +8,7 @@ import { Chat } from "@/types/chat";
 import { Box, Slider, Stack, Typography } from "@mui/material";
 import { VolumeDown, VolumeUp } from "@mui/icons-material";
 import AudioComponent from "./AudioComponent";
+import ReactMarkdown from "react-markdown";
 
 type ChatComponentProps = {
   currentChatId: number | null;
@@ -262,13 +263,23 @@ export default function ChatComponent({
                 {/* 読込中アニメーション */}
                 {msg.content ? (
                   <div
-                    className={`p-2 rounded-lg max-w-xs text-start text-black ${
+                    className={`p-2 rounded-lg max-w-xs md:max-w-10/12 text-start text-black ${
                       msg.role === "user"
                         ? "bg-blue-200 text-right"
                         : "bg-green-200 text-left"
                     }`}
                   >
-                    {msg.content}
+                    <div className="prose max-w-none break-words">
+                      <ReactMarkdown
+                        components={{
+                          pre: ({ children }) => (
+                            <pre className="overflow-x-auto">{children}</pre>
+                          ),
+                        }}
+                      >
+                        {msg.content}
+                      </ReactMarkdown>
+                    </div>
                   </div>
                 ) : (
                   <div className="mt-4">
